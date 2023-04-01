@@ -1,0 +1,26 @@
+---
+- name: Install Nexus
+  hosts: nexus
+  become: true
+
+  tasks:
+  - name: Install Java 8
+    apt:
+      name: openjdk-8-jdk
+      state: present
+
+  - name: Download Nexus
+    get_url:
+      url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+      dest: /tmp/latest-unix.tar.gz
+
+  - name: Extract Nexus
+    unarchive:
+      src: /tmp/latest-unix.tar.gz
+      dest: /home/ubuntu/
+      remote_src: yes
+      creates: /home/ubuntu/nexus-3.50.0-01
+
+  - name: Start Nexus
+    shell: /home/ubuntu/nexus-3.50.0-01/bin/nexus start
+

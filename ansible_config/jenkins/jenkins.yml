@@ -1,0 +1,26 @@
+---
+ - name: Install and start Jenkins
+   hosts: cicd
+   become: yes
+
+ 
+   tasks:
+    - name: ensure the jenkins apt repository key is installed
+      apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+
+    - name: ensure the repository is configured
+      apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+
+    - name: Ensure java is installed
+      apt: name=openjdk-11-jre state=present
+
+    - name: ensure jenkins is installed
+      apt: name=jenkins update_cache=yes
+
+    - name: ensure jenkins is running
+      service: name=jenkins state=started
+
+        #    - name: "Configure hostname"
+        #ansible.builtin.hostname:
+        # name: "jenkins"
+    

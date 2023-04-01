@@ -1,0 +1,17 @@
+[Unit]
+Description=Nexus Service
+After=network.target
+
+[Service]
+Type=forking
+User=nexus
+Group=nexus
+#PIDFile=/opt/nexus-3.50.0-01/nexus.pid
+ExecStart=/opt/nexus-3.50.0-01/bin/nexus start
+ExecStop=/opt/nexus-3.50.0-01/bin/nexus stop
+ExecReload=/opt/nexus-3.50.0-01/bin/nexus status
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+

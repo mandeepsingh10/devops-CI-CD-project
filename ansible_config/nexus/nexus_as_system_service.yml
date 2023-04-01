@@ -1,0 +1,54 @@
+---
+- name: Install Nexus
+  hosts: nexus
+  become: true
+
+  tasks:
+  - name: Install Java 8
+    apt:
+      name: openjdk-8-jdk
+      state: present
+
+  - name: Download Nexus
+    get_url:
+      url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+      dest: /tmp/latest-unix.tar.gz
+
+  - name: Extract Nexus
+    unarchive:
+      src: /tmp/latest-unix.tar.gz
+      dest: /opt/
+      remote_src: yes
+      creates: /opt/nexus-3.50.0-01
+
+  - name: Create Nexus user
+    user:
+      name: nexus
+      comment: "Nexus user"
+      shell: /bin/false
+      system: true
+
+  - name: Set Nexus ownership
+    file:
+      path: "/opt/nexus-3.50.0-01"
+      owner: nexus
+      group: nexus
+      recurse: yes
+
+  - name: Configure Nexus service
+    copy:
+      src: nexus.service
+      dest: /etc/systemd/system/
+      mode: '0644'
+
+  - name: Reload systemd daemon
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable and start Nexus service
+    systemd:
+      name: nexus
+      state: started
+      enabled: yes
+
+
