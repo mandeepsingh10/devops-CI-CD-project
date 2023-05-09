@@ -11,16 +11,14 @@
 
   - name: Download Nexus
     get_url:
-      url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
-      dest: /tmp/latest-unix.tar.gz
+      url: https://download.sonatype.com/nexus/3/nexus-3.53.0-01-unix.tar.gz
+      dest: /tmp/nexus-3.53.0-01-unix.tar.gz
 
   - name: Extract Nexus
     unarchive:
-      src: /tmp/latest-unix.tar.gz
+      src: /tmp/nexus-3.53.0-01-unix.tar.gz
       dest: /home/ubuntu/
       remote_src: yes
-      creates: /home/ubuntu/nexus-3.50.0-01
 
   - name: Start Nexus
-    shell: /home/ubuntu/nexus-3.50.0-01/bin/nexus start
-
+    shell: /home/ubuntu/nexus-3.53.0-01/bin/nexus start

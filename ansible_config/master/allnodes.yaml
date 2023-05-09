@@ -1,0 +1,127 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Add entries to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item }}"
+      with_items:
+        - "172.31.4.1 k8s-master"
+        - "172.31.7.154 k8s-node1"
+
+    - name: Add entries to /etc/modules-load.d/containerd.conf
+      lineinfile:
+        path: /etc/modules-load.d/containerd.conf
+        line: "{{ item }}"
+      with_items:
+        - "overlay"
+        - "br_netfilter"
+
+    - name: Load kernel modules
+      modprobe:
+        name: "{{ item }}"
+      with_items:
+        - overlay
+        - br_netfilter
+
+    - name: Add entries to /etc/sysctl.d/99-kubernetes-cri.conf
+      lineinfile:
+        path: /etc/sysctl.d/99-kubernetes-cri.conf
+        line: "{{ item }}"
+      with_items:
+        - "net.bridge.bridge-nf-call-iptables = 1"
+        - "net.ipv4.ip_forward = 1"
+        - "net.bridge.bridge-nf-call-ip6tables = 1"
+
+    - name: Reload sysctl settings
+      sysctl:
+        state: present
+      register: sysctl_output
+
+    - name: Save sysctl output to a file
+      copy:
+        content: "{{ sysctl_output.stdout }}"
+        dest: output_of_sysctl.txt
+
+    - name: Download and extract containerd
+      get_url:
+        url: "https://github.com/containerd/containerd/releases/download/v1.6.16/containerd-1.6.16-linux-amd64.tar.gz"
+        dest: /tmp/containerd-1.6.16-linux-amd64.tar.gz
+
+    - name: Extract containerd to /usr/local
+      unarchive:
+        src: /tmp/containerd-1.6.16-linux-amd64.tar.gz
+        dest: /usr/local
+        remote_src: true
+
+    - name: Download and install runc
+      get_url:
+        url: "https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64"
+        dest: /tmp/runc.amd64
+        mode: '0755'
+
+    - name: Install runc to /usr/local/sbin
+      copy:
+        src: /tmp/runc.amd64
+        dest: /usr/local/sbin/runc
+        mode: '0755'
+    - name: Download and extract CNI plugins
+      get_url:
+        url: "https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz"
+        dest: /tmp/cni-plugins-linux-amd64-v1.2.0.tgz
+
+    - name: Extract CNI plugins to /opt/cni/bin
+      unarchive:
+        src: /tmp/cni-plugins-linux-amd64-v1.2.0.tgz
+        dest: /opt/cni/bin
+        remote_src: true
+
+    - name: Create containerd configuration
+      command: containerd config default > /etc/containerd/config.toml
+      args:
+        creates: /etc/containerd/config.toml
+
+    - name: Change systemd_cgroup to true in containerd configuration
+      replace:
+        path: /etc/containerd/config.toml
+        regexp: 'systemd_cgroup = false'
+        replace: 'systemd_cgroup = true'
+
+    
+    - name: Update apt cache
+      apt:
+      update_cache: yes
+    - name: Install packages
+      apt:
+        name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - kubelet=1.26.1-00
+        - kubeadm=1.26.1-00
+        - kubectl=1.26.1-00
+        state: present
+    - name: Add Kubernetes repository GPG key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+    - name: Add Kubernetes repository
+      apt_repository:
+        filename: kubernetes.list
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+        state: present
+    - name: Update apt cache again
+      apt:
+        update_cache: yes
+    - name: Reboot the system
+      reboot:
+        reboot_timeout: 600
+        test_command: /usr/bin/whoami
+    - name: Hold Kubernetes packages
+      apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: held
