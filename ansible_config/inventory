@@ -1,5 +1,5 @@
 jenkins ansible_host=65.0.183.121 ansible_user=ubuntu ansible_connection=ssh
 sonar ansible_host=13.232.175.52 ansible_user=ubuntu ansible_connection=ssh
 nexus ansible_host=13.235.78.78 ansible_user=ubuntu ansible_connection=ssh
-k8s-master ansible_host=13.127.52.15 ansible_user=ubuntu ansible_connection=ssh
-k8s-node1 ansible_host=13.233.118.11 ansible_user=ubuntu ansible_connection=ssh
+k8s-master ansible_host=65.2.73.138 ansible_user=ubuntu ansible_connection=ssh
+k8s-node1 ansible_host=3.111.57.46 ansible_user=ubuntu ansible_connection=ssh

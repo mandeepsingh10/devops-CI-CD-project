@@ -29,3 +29,4 @@ override.tf.json
 # example: *tfplan*
 ### sshkeys
 id_rsa*
+join_cluster.sh
