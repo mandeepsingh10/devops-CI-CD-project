@@ -26,3 +26,6 @@ output "public_dns" {
   value = aws_instance.web.public_dns
 }
 
+output "Name" {
+  value = var.aws_instance_name
+}

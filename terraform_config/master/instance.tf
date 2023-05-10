@@ -29,3 +29,6 @@ output "private_ip" {
   value = aws_instance.web.private_ip
 }
 
+output "Name" {
+  value = var.aws_instance_name
+}
