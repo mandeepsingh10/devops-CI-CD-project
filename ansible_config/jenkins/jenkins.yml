@@ -26,17 +26,34 @@
    become: true
   
    tasks:
+    - name: Check if Helm is installed
+      shell: helm version
+      register: helm_check
+      changed_when: false
+      ignore_errors: yes
+
     - name: Download Helm script
       get_url:
         url: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
         dest: /tmp/get_helm.sh
         mode: 0755
+      when: helm_check.rc != 0
+
     - name: Install Helm
       shell: /tmp/get_helm.sh
+      when: helm_check.rc != 0
+    
     - name: Install unzip
       apt: name=unzip state=present
-    - name: Install datree.io helm plugin
-      shell: helm plugin install https://github.com/datreeio/helm-datree
+   
+    - name: Check if Datree plugin exists ###### Checks if datree plugin exists if not then installs it 
+      shell: "df | helm plugin list | grep datree"
+      register: datree_check
+      changed_when: false
+      check_mode: no      
+    - name: Install Datree plugin
+      shell: "helm plugin install https://github.com/datreeio/helm-datree"
+      when: datree_check.rc != 0  
 
 ####### ANSIBLE PLAY TO INSTALL DOCKER #########  
  - name: Install Docker
@@ -71,6 +88,20 @@
         - docker-ce-cli
         - containerd.io
         state: present 
-      
-    - name: Add jenkins user to docker group  
-      shell: usermod -a -G docker jenkins
+
+    - name: Add jenkins to sudo group
+      user:
+        name: jenkins
+        groups: sudo
+        append: yes
+
+    - name: Add jenkins to docker group
+      user:
+        name: jenkins
+        groups: docker
+        append: yes
+
+    - name: Add jenkins to sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        line: 'jenkins ALL=(ALL) NOPASSWD: ALL'    
