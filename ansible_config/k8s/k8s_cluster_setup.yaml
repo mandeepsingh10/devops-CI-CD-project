@@ -1,4 +1,11 @@
 ---
+##### Play to add private IPs of k8s-master and k8s-node1 to master.sh and nodes.sh scripts.
+- name: Add private IP of k8s instances to init scripts 
+  hosts: localhost
+  tasks:
+    - name: Run add_k8s_ip.sh
+      shell: ./add_k8s_ip.sh
+
 ##### Play to setup and configure k8s control plane node #####
 - name: Setup k8s Control Plane (master) node
   hosts: k8s-master

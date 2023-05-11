@@ -47,8 +47,9 @@
       apt: name=unzip state=present
    
     - name: Check if Datree plugin exists ###### Checks if datree plugin exists if not then installs it 
-      shell: "df | helm plugin list | grep datree"
+      shell: "helm plugin list | grep datree"
       register: datree_check
+      failed_when: datree_check.rc != 1 and datree_check.rc != 0
       changed_when: false
       check_mode: no      
     - name: Install Datree plugin
@@ -105,3 +106,11 @@
       lineinfile:
         path: /etc/sudoers
         line: 'jenkins ALL=(ALL) NOPASSWD: ALL'    
+
+    - name: Fetch initial admin password 
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: admin_password
+    
+    - name: Display initial admin password
+      debug:
+        msg: "Initial admin password is {{ admin_password.stdout }}"

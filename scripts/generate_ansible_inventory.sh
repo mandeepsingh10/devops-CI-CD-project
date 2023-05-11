@@ -12,11 +12,11 @@ EOF
 
 echo "Populating inventory file for ansible ...."
 
-jenkins_public_ip=`terraform -chdir="jenkins" output | grep public_ip |awk '{print $3}' | tr -d '"'`
-sonar_public_ip=`terraform -chdir="sonar" output | grep public_ip |awk '{print $3}' | tr -d '"'`
-nexus_public_ip=`terraform -chdir="nexus" output | grep public_ip |awk '{print $3}' | tr -d '"'`
-master_public_ip=`terraform -chdir="master" output | grep public_ip |awk '{print $3}' | tr -d '"'`
-node1_public_ip=`terraform -chdir="node1" output | grep public_ip |awk '{print $3}' | tr -d '"'`
+jenkins_public_ip=`terraform -chdir="../terraform_config/jenkins" output | grep public_ip |awk '{print $3}' | tr -d '"'`
+sonar_public_ip=`terraform -chdir="../terraform_config/sonar" output | grep public_ip |awk '{print $3}' | tr -d '"'`
+nexus_public_ip=`terraform -chdir="../terraform_config/nexus" output | grep public_ip |awk '{print $3}' | tr -d '"'`
+master_public_ip=`terraform -chdir="../terraform_config/master" output | grep public_ip |awk '{print $3}' | tr -d '"'`
+node1_public_ip=`terraform -chdir="../terraform_config/node1" output | grep public_ip |awk '{print $3}' | tr -d '"'`
 
 sed -i "s/^jenkins.*ansible_host=.*/jenkins ansible_host=${jenkins_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
 sed -i "s/^sonar.*ansible_host=.*/sonar ansible_host=${sonar_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
