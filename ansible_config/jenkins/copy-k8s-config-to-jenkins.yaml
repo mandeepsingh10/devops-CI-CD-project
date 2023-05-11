@@ -1,0 +1,27 @@
+-   name: Copy the kubeconfig from k8s-master 
+    hosts: k8s-master
+    become: true
+    tasks:
+    - name: Fetch the file from k8s-master to localhost
+      run_once: yes
+      fetch:
+        src: /root/.kube/config
+        dest: buffer/
+        flat: yes
+
+-   name: Jenkins User kubectl Setup
+    hosts: jenkins
+    become: true
+    tasks:
+      - name: create directory and set ownership of .kube directory for jenkins user
+        file:
+          path: /var/lib/jenkins/.kube
+          state: directory
+          owner: jenkins
+          group: jenkins
+
+      - name: Copy the file from localhost to jenkins
+        copy:
+          src: buffer/config
+          dest: /var/lib/jenkins/.kube/config
+          mode: "0644"
