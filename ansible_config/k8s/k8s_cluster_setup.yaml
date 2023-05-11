@@ -120,4 +120,6 @@
         copy:
           src: buffer/config
           dest: /var/lib/jenkins/.kube/config
-          mode: "0644"
+          mode: "0600"
+          owner: jenkins
+          group: jenkins
