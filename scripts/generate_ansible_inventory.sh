@@ -24,4 +24,4 @@ sed -i "s/^nexus.*ansible_host=.*/nexus ansible_host=${nexus_public_ip} ansible_
 sed -i "s/^k8s-master.*ansible_host=.*/k8s-master ansible_host=${master_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
 sed -i "s/^k8s-node1.*ansible_host=.*/k8s-node1 ansible_host=${node1_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
 
-
+echo "Done!!!"
